@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Metabólica e % de Gordura</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #e8f5e9; /* Tom de verde claro */
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #2e7d32; /* Tom de verde escuro */
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #c8e6c9; /* Borda verde claro */
+            border-radius: 8px;
+            background-color: #f0fdf0; /* Fundo mais claro para seções */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4CAF50; /* Verde vibrante */
+        }
+        input[type="number"], select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #a5d6a7; /* Verde médio */
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box; /* Garante que padding não aumente a largura total */
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50; /* Verde principal */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #388e3c; /* Verde mais escuro no hover */
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #e0f2f1; /* Azul esverdeado claro */
+            border-radius: 8px;
+            border-left: 6px solid #009688; /* Verde água */
+            font-size: 1.1em;
+            color: #212121;
+        }
+        .result strong {
+            color: #00796b; /* Verde água escuro */
+        }
+        .error-message {
+            color: #d32f2f; /* Vermelho */
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora Metabólica e % de Gordura</h1>
+
+        <div class="section">
+            <h2>Dados Pessoais</h2>
+            <div class="form-group">
+                <label for="sexo">Sexo:</label>
+                <select id="sexo">
+                    <option value="">Selecione</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="feminino">Feminino</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="peso">Peso (kg):</label>
+                <input type="number" id="peso" placeholder="Ex: 70.5" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="altura">Altura (cm):</label>
+                <input type="number" id="altura" placeholder="Ex: 175" step="1">
+            </div>
+            <div class="form-group">
+                <label for="idade">Idade (anos):</label>
+                <input type="number" id="idade" placeholder="Ex: 30" step="1">
+            </div>
+            <div class="form-group">
+                <label for="nivelAtividade">Nível de Atividade:</label>
+                <select id="nivelAtividade">
+                    <option value="">Selecione</option>
+                    <option value="sedentario">Sedentário (pouco ou nenhum exercício)</option>
+                    <option value="levementeAtivo">Levemente Ativo (exercício leve 1-3 dias/semana)</option>
+                    <option value="moderadamenteAtivo">Moderadamente Ativo (exercício moderado 3-5 dias/semana)</option>
+                    <option value="altamenteAtivo">Altamente Ativo (exercício pesado 6-7 dias/semana)</option>
+                    <option value="extremamenteAtivo">Extremamente Ativo (exercício pesado diariamente ou 2x ao dia)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Medidas de Circunferência para % de Gordura (em cm)</h2>
+            <p style="font-size: 0.9em; color: #666;">*Utilize uma fita métrica para medir as circunferências.</p>
+
+            <div class="form-group">
+                <label for="circunferenciaPescoco">Circunferência do Pescoço (cm):</label>
+                <input type="number" id="circunferenciaPescoco" placeholder="Ex: 38.0" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="circunferenciaCintura">Circunferência da Cintura (cm):</label>
+                <input type="number" id="circunferenciaCintura" placeholder="Ex: 85.0" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="circunferenciaQuadril">Circunferência do Quadril (apenas Feminino - cm):</label>
+                <input type="number" id="circunferenciaQuadril" placeholder="Ex: 95.0" step="0.1">
+            </div>
+        </div>
+
+        <button onclick="calcular()">Calcular</button>
+
+        <div class="result" id="resultado">
+            </div>
+    </div>
+
+    <script>
+        function calcular() {
+            const sexo = document.getElementById('sexo').value;
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            const idade = parseFloat(document.getElementById('idade').value);
+            const nivelAtividade = document.getElementById('nivelAtividade').value;
+
+            const circunferenciaPescoco = parseFloat(document.getElementById('circunferenciaPescoco').value);
+            const circunferenciaCintura = parseFloat(document.getElementById('circunferenciaCintura').value);
+            const circunferenciaQuadril = parseFloat(document.getElementById('circunferenciaQuadril').value);
+
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = ''; // Limpa resultados anteriores
+            resultadoDiv.classList.remove('error-message'); // Remove estilo de erro
+
+            // --- Validação dos dados essenciais ---
+            if (!sexo || isNaN(peso) || isNaN(altura) || isNaN(idade) || !nivelAtividade ||
+                peso <= 0 || altura <= 0 || idade <= 0) {
+                resultadoDiv.innerHTML = '<span class="error-message">Por favor, preencha todos os campos obrigatórios (Peso, Altura, Idade, Sexo e Nível de Atividade) com valores válidos.</span>';
+                return;
+            }
+
+            // --- Cálculo da TMB (Mifflin-St Jeor) ---
+            let tmb;
+            if (sexo === 'masculino') {
+                tmb = (10 * peso) + (6.25 * altura) - (5 * idade) + 5;
+            } else { // feminino
+                tmb = (10 * peso) + (6.25 * altura) - (5 * idade) - 161;
+            }
+
+            // --- Cálculo do GCD (Gasto Calórico Diário) ---
+            let fatorAtividade;
+            switch (nivelAtividade) {
+                case 'sedentario':
+                    fatorAtividade = 1.2;
+                    break;
+                case 'levementeAtivo':
+                    fatorAtividade = 1.375;
+                    break;
+                case 'moderadamenteAtivo':
+                    fatorAtividade = 1.55;
+                    break;
+                case 'altamenteAtivo':
+                    fatorAtividade = 1.725;
+                    break;
+                case 'extremamenteAtivo':
+                    fatorAtividade = 1.9;
+                    break;
+                default:
+                    fatorAtividade = 1; // Fallback
+            }
+            const gcd = tmb * fatorAtividade;
+
+            // --- Cálculo do Percentual de Gordura (Marinha Americana) ---
+            let pcg = null; // Inicializa como nulo
+            let podeCalcularGordura = true;
+
+            // Validação das medidas de circunferência
+            const medidasValidasPescoco = !isNaN(circunferenciaPescoco) && circunferenciaPescoco > 0;
+            const medidasValidasCintura = !isNaN(circunferenciaCintura) && circunferenciaCintura > 0;
+            const medidasValidasQuadril = !isNaN(circunferenciaQuadril) && circunferenciaQuadril > 0;
+
+            if (sexo === 'masculino') {
+                if (!medidasValidasPescoco || !medidasValidasCintura) {
+                    podeCalcularGordura = false;
+                } else {
+                    // Fórmula para homens (Marinha Americana)
+                    const log10Altura = Math.log10(altura);
+                    const log10CinturaPescoco = Math.log10(circunferenciaCintura - circunferenciaPescoco);
+                    const dc = 1.0324 - (0.19077 * log10CinturaPescoco) + (0.15456 * log10Altura);
+                    pcg = (495 / dc) - 450;
+                }
+            } else { // feminino
+                if (!medidasValidasPescoco || !medidasValidasCintura || !medidasValidasQuadril) {
+                    podeCalcularGordura = false;
+                } else {
+                    // Fórmula para mulheres (Marinha Americana)
+                    const log10Altura = Math.log10(altura);
+                    const log10CinturaQuadrilPescoco = Math.log10(circunferenciaCintura + circunferenciaQuadril - circunferenciaPescoco);
+                    const dc = 1.29579 - (0.35004 * log10CinturaQuadrilPescoco) + (0.22100 * log10Altura);
+                    pcg = (495 / dc) - 450;
+                }
+            }
+
+            // --- Exibir Resultados ---
+            let resultadoHTML = `
+                <h3>Resultados:</h3>
+                <p><strong>Taxa Metabólica Basal (TMB):</strong> ${tmb.toFixed(0)} calorias/dia</p>
+                <p><strong>Gasto Calórico Total Diário (GCD):</strong> ${gcd.toFixed(0)} calorias/dia</p>
+                <p style="font-size: 0.9em; color: #666;">(Baseado no seu nível de atividade)</p>
+            `;
+
+            if (podeCalcularGordura && pcg !== null) {
+                resultadoHTML += `<p><strong>Percentual de Gordura Corporal:</strong> ${pcg.toFixed(2)}%</p>`;
+                resultadoHTML += `<p style="font-size: 0.9em; color: #666;">(Calculado com base nas medidas de circunferência. A precisão pode variar.)</p>`;
+            } else {
+                resultadoHTML += `<p style="font-size: 0.9em; color: #666; font-style: italic;">(Não foi possível calcular o percentual de gordura. Certifique-se de preencher as circunferências corretas para seu sexo com valores válidos.)</p>`;
+            }
+
+            resultadoHTML += `
+                <br>
+                <p><strong>Observações Importantes:</strong></p>
+                <ul>
+                    <li>Estes cálculos são estimativas e podem variar. Para resultados precisos e um plano personalizado, consulte um nutricionista ou profissional de saúde.</li>
+                    <li>As medidas de circunferência devem ser tiradas com uma fita métrica, diretamente sobre a pele, sem apertar.</li>
+                    <ul>
+                        <li><strong>Pescoço:</strong> Na parte mais estreita, logo abaixo da laringe.</li>
+                        <li><strong>Cintura (Homens):</strong> Na altura do umbigo.</li>
+                        <li><strong>Cintura (Mulheres):</strong> Na menor circunferência da cintura.</li>
+                        <li><strong>Quadril (Mulheres):</strong> Na maior circunferência dos glúteos.</li>
+                    </ul>
+                </ul>
+            `;
+
+            resultadoDiv.innerHTML = resultadoHTML;
+        }
+    </script>
+</body>
+</html>
